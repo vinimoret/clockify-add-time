@@ -6,9 +6,10 @@ const pkg = require('./package.json');
 const { getWorkspaces, putHours } = require('./lib/clockifyRequest');
 const { searchProject } = require('./lib/helper');
 
-(async () => {
+async function start() {
   const projects = await getWorkspaces();
   const questions = [{ type: 'autocomplete', name: 'projectName', message: 'Choose the project', source: searchProject, pageSize: 10 }, { type: 'confirm', name: 'onlyToday', message: 'Only today?', default: true }];
+  const done = [{ type: 'confirm', name: 'done', message: 'Are you done?', default: true }];
   const hours = [
     {
       type: 'number',
@@ -55,15 +56,26 @@ const { searchProject } = require('./lib/helper');
   inquirer.prompt(questions).then(function(answers) {
     if (answers.onlyToday) {
       inquirer.prompt(hours).then(async function(hours) {
-        1;
         await putHours({ ...answers, ...hours, project: projects.find(proj => proj.name === answers.projectName) });
-        console.log('Done!');
+        inquirer.prompt(done).then(doneAnswer => {
+          if (doneAnswer.done) {
+            console.log('Done!');
+          } else {
+            return start();
+          }
+        });
       });
     } else {
       inquirer.prompt(daysWorkedAndHours).then(async function(hoursAndDays) {
         await putHours({ ...answers, ...hoursAndDays, project: projects.find(proj => proj.name === answers.projectName) });
-        console.log('Done!');
+        if (doneAnswer.done) {
+          console.log('Done!');
+        } else {
+          return start();
+        }
       });
     }
   });
-})();
+}
+
+start();
