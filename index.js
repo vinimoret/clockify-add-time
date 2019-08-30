@@ -68,11 +68,13 @@ async function start() {
     } else {
       inquirer.prompt(daysWorkedAndHours).then(async function(hoursAndDays) {
         await putHours({ ...answers, ...hoursAndDays, project: projects.find(proj => proj.name === answers.projectName) });
-        if (doneAnswer.done) {
-          console.log('Done!');
-        } else {
-          return start();
-        }
+        inquirer.prompt(done).then(doneAnswer => {
+            if (doneAnswer.done) {
+              console.log('Done!');
+            } else {
+              return start();
+            }
+          });
       });
     }
   });
