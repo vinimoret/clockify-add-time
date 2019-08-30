@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-require('dotenv').config();
 const inquirer = require('inquirer');
 const rp = require('request-promise');
 inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'));
